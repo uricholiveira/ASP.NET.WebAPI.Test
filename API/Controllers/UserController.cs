@@ -1,4 +1,6 @@
-﻿using Data.Models.Request;
+﻿using System.Security.Claims;
+using Data.Models.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Security.Interfaces;
@@ -9,8 +11,8 @@ namespace API.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly IIdentityService _identityService;
     private readonly ILogger<UserController> _logger;
+    private readonly IIdentityService _identityService;
 
     public UserController(ILogger<UserController> logger, IIdentityService identityService)
     {
@@ -27,13 +29,5 @@ public class UserController : ControllerBase
             return Created("", "");
 
         return BadRequest(result.Errors);
-    }
-
-    [HttpPost("Login")]
-    public async Task<IActionResult> Login(LoginRequest data, CancellationToken cancellationToken)
-    {
-        var result = await _identityService.Login(data, cancellationToken);
-
-        return Ok(result);
     }
 }
