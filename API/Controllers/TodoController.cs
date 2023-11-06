@@ -28,7 +28,7 @@ public class TodoController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<List<Todo>> GetAll([FromQuery] GetTodoRequestModel model, CancellationToken cancellationToken)
     {
         var todos = await _todoService.GetTodos(model, cancellationToken);

@@ -19,7 +19,8 @@ public static class AuthenticationExtension
             options.Issuer = jwtConfiguration[nameof(JwtOptions.Issuer)]!;
             options.Audience = jwtConfiguration[nameof(JwtOptions.Audience)]!;
             options.SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
-            options.Expiration = int.Parse(jwtConfiguration[nameof(JwtOptions.Expiration)]!);
+            options.AccessTokenExpiration = int.Parse(jwtConfiguration[nameof(JwtOptions.AccessTokenExpiration)]!);
+            options.RefreshTokenExpiration = int.Parse(jwtConfiguration[nameof(JwtOptions.RefreshTokenExpiration)]!);
         });
 
         serviceCollection.Configure<IdentityOptions>(options =>
@@ -39,6 +40,8 @@ public static class AuthenticationExtension
             ValidAudience = jwtConfiguration.GetSection(nameof(JwtOptions.Audience)).Value,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = securityKey,
+            RequireExpirationTime = true,
+            ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
 
