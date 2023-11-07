@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Business.Interfaces;
 using Data.Models.Request;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -14,17 +15,17 @@ namespace Security.Services;
 public class IdentityService : IIdentityService
 {
     private readonly JwtOptions _jwtOptions;
-    private readonly IPasswordHasher<IdentityUser> _passwordHasher;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
+    private readonly INotificationService _notificationService;
 
     public IdentityService(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
-        IOptions<JwtOptions> jwtOptions, IPasswordHasher<IdentityUser> passwordHasher)
+        IOptions<JwtOptions> jwtOptions, INotificationService notificationService)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _notificationService = notificationService;
         _jwtOptions = jwtOptions.Value;
-        _passwordHasher = passwordHasher;
     }
 
     public async Task<IdentityResult> CreateUser(CreateUserRequest data, CancellationToken cancellationToken)
@@ -36,7 +37,33 @@ public class IdentityService : IIdentityService
             EmailConfirmed = false
         };
 
+        var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        await _notificationService.SendEmailConfirmation(user, emailConfirmationToken);
+
         return await _userManager.CreateAsync(user, data.Password);
+    }
+
+    public async Task<bool?> PasswordReset(string userId, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return null;
+
+        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        await _notificationService.SendPasswordReset(user, resetPasswordToken);
+
+        return true;
+    }
+
+    public async Task<bool> UserEmailConfirmationToken(string userId, string emailConfirmationToken,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return false;
+
+        var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
+        return result.Succeeded;
     }
 
     public async Task<JwtToken?> GenerateToken(IdentityUser user)
