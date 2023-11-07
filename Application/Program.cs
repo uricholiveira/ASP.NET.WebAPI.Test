@@ -12,6 +12,9 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string outputTemplate =
+    "[{Timestamp:HH:mm:ss} {Level:u3}] [{RequestId}] {Message:lj}{NewLine}{Exception}";
+
 // Add services to the container.
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")!,
@@ -21,7 +24,8 @@ builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")!,
         optionsBuilder => { optionsBuilder.MigrationsHistoryTable("__Migrations", IdentityDatabaseContext.Schema); }));
 
-builder.Services.AddSerilog();
+
+builder.Services.AddSerilog(outputTemplate);
 builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSwaggerExtension();
@@ -44,6 +48,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment()) app.UseSwaggerExtension();
 
 app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<RequestIdMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

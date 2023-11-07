@@ -1,8 +1,10 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Business.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace Business.Services;
 
@@ -59,12 +61,14 @@ public class RabbitMqService : IRabbitMqService
         }
     }
 
-    public void PublishMessage(IModel channel, string message, IBasicProperties? basicProperties = null)
+    public void PublishMessage(IModel channel, string message, string queue, IBasicProperties? basicProperties = null)
     {
         try
         {
-            // Substitua "exchange" e "routingKey" com os valores apropriados para o seu caso
-            channel.BasicPublish(exchange: "web-services", routingKey: "notification", basicProperties: basicProperties,
+            basicProperties ??= channel.CreateBasicProperties();
+
+            basicProperties.CorrelationId = Activity.Current!.TraceId.ToString();
+            channel.BasicPublish(exchange: "web-services", routingKey: queue, basicProperties: basicProperties,
                 body: Encoding.UTF8.GetBytes(message));
         }
         catch (Exception ex)
@@ -74,8 +78,21 @@ public class RabbitMqService : IRabbitMqService
         }
     }
 
-    public void ConsumeMessage()
+    public string ConsumeMessage(IModel channel, string queue, Action<string> messageHandler)
     {
-        throw new NotImplementedException();
+        var consumer = new EventingBasicConsumer(channel);
+
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            var parentId = ea.BasicProperties.CorrelationId;
+
+            Activity.Current?.SetParentId(parentId);
+
+            messageHandler(message);
+        };
+
+        return channel.BasicConsume(queue, true, consumer);
     }
 }

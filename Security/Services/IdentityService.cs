@@ -43,6 +43,18 @@ public class IdentityService : IIdentityService
         return await _userManager.CreateAsync(user, data.Password);
     }
 
+    public async Task<bool?> PasswordReset(string userId, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return null;
+
+        var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        await _notificationService.SendPasswordReset(user, resetPasswordToken);
+
+        return true;
+    }
+
     public async Task<bool> UserEmailConfirmationToken(string userId, string emailConfirmationToken,
         CancellationToken cancellationToken)
     {

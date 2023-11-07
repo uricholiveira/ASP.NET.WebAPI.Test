@@ -20,6 +20,6 @@ public static class RabbitMqExtension
         };
 
         serviceCollection.AddSingleton<IConnectionFactory>(connectionFactory);
-        serviceCollection.AddScoped<IRabbitMqService, RabbitMqService>();
+        serviceCollection.AddSingleton<IRabbitMqService, RabbitMqService>();
     }
 }
