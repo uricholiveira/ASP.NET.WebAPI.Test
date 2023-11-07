@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Data.Models.Request;
-using Microsoft.AspNetCore.Authorization;
+﻿using Data.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Security.Interfaces;
@@ -29,5 +27,14 @@ public class UserController : ControllerBase
             return Created("", "");
 
         return BadRequest(result.Errors);
+    }
+
+    [HttpGet("Confirmation")]
+    public async Task<IActionResult> CreateUser([FromQuery] string userId, [FromQuery] string emailConfirmationToken,
+        CancellationToken cancellationToken)
+    {
+        var result = await _identityService.UserEmailConfirmationToken(userId, emailConfirmationToken, cancellationToken);
+
+        return result ? Ok("Token confirmado") : BadRequest("Token inválido");
     }
 }

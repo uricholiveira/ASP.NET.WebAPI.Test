@@ -23,6 +23,7 @@ builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
 
 builder.Services.AddSerilog();
 builder.Services.AddCustomAuthentication(builder.Configuration);
+builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSwaggerExtension();
 builder.Services.AddControllers();
 
@@ -33,6 +34,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>()
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Host.UseSerilog();
 
