@@ -10,8 +10,8 @@ namespace API.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
     private readonly IIdentityService _identityService;
+    private readonly ILogger<UserController> _logger;
 
     public UserController(ILogger<UserController> logger, IIdentityService identityService)
     {
@@ -48,7 +48,7 @@ public class UserController : ControllerBase
 
         if (userId is null)
             return BadRequest();
-        
+
         var result = await _identityService.PasswordReset(userId, cancellationToken);
 
         return result is true ? Ok("Token enviado") : BadRequest("Token não enviado");

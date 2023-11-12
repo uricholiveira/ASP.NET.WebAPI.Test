@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Security.Policies;
+namespace Security.Requirements;
 
 public class AdminPolicyRequirement : IAuthorizationRequirement
 {
-    public AdminPolicyRequirement()
-    {
-    }
 }

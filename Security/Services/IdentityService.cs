@@ -15,9 +15,9 @@ namespace Security.Services;
 public class IdentityService : IIdentityService
 {
     private readonly JwtOptions _jwtOptions;
+    private readonly INotificationService _notificationService;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly INotificationService _notificationService;
 
     public IdentityService(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
         IOptions<JwtOptions> jwtOptions, INotificationService notificationService)
@@ -38,7 +38,7 @@ public class IdentityService : IIdentityService
         };
 
         var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        await _notificationService.SendEmailConfirmation(user, emailConfirmationToken);
+        await _notificationService.PublishEmailConfirmation(user, emailConfirmationToken);
 
         return await _userManager.CreateAsync(user, data.Password);
     }
@@ -50,7 +50,7 @@ public class IdentityService : IIdentityService
             return null;
 
         var resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        await _notificationService.SendPasswordReset(user, resetPasswordToken);
+        await _notificationService.PublishResetPassword(user, resetPasswordToken);
 
         return true;
     }
@@ -78,10 +78,7 @@ public class IdentityService : IIdentityService
             DateTime.Now, accessTokenExpiration, _jwtOptions.SigningCredentials);
         var accessToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        foreach (var userClaim in userClaims)
-        {
-            claims.Add(userClaim);
-        }
+        foreach (var userClaim in userClaims) claims.Add(userClaim);
 
         jwt = new JwtSecurityToken(_jwtOptions.Issuer, _jwtOptions.Audience, claims,
             DateTime.Now, refreshTokenExpiration, _jwtOptions.SigningCredentials);
@@ -109,16 +106,6 @@ public class IdentityService : IIdentityService
         return Task.FromResult<IList<Claim>>(claims);
     }
 
-    public async Task<IList<Claim>> GenerateUserClaims(IdentityUser user)
-    {
-        var claims = await _userManager.GetClaimsAsync(user);
-        var roles = await _userManager.GetRolesAsync(user);
-
-        foreach (var role in roles) claims.Add(new Claim("role", role));
-
-        return claims;
-    }
-
     public async Task<JwtToken?> Login(string userId, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -141,5 +128,15 @@ public class IdentityService : IIdentityService
 
         // TODO: Adicionar validação de erros
         return null;
+    }
+
+    public async Task<IList<Claim>> GenerateUserClaims(IdentityUser user)
+    {
+        var claims = await _userManager.GetClaimsAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        foreach (var role in roles) claims.Add(new Claim("role", role));
+
+        return claims;
     }
 }

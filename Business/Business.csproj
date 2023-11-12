@@ -13,7 +13,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.12"/>
-        <PackageReference Include="RabbitMQ.Client" Version="6.6.0" />
+        <PackageReference Include="RabbitMQ.Client" Version="6.6.0"/>
     </ItemGroup>
 
 </Project>

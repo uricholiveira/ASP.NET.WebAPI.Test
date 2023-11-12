@@ -1,18 +1,20 @@
 ﻿using System.Diagnostics;
-using System.Web;
 using Business.Interfaces;
 
 namespace Worker.Consumers.Notification;
 
-public class ChangePasswordConsumer : BackgroundService
+public class PasswordResetConsumer : BackgroundService
 {
-    private readonly ILogger<ChangePasswordConsumer> _logger;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<PasswordResetConsumer> _logger;
     private readonly IRabbitMqService _rabbitMqService;
 
-    public ChangePasswordConsumer(ILogger<ChangePasswordConsumer> logger, IRabbitMqService rabbitMqService)
+    public PasswordResetConsumer(ILogger<PasswordResetConsumer> logger, IRabbitMqService rabbitMqService,
+        IEmailService emailService)
     {
         _logger = logger;
         _rabbitMqService = rabbitMqService;
+        _emailService = emailService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -21,27 +23,25 @@ public class ChangePasswordConsumer : BackgroundService
         if (Activity.Current is null)
         {
         }
-        var activity = new Activity(nameof(ChangePasswordConsumer));
-        
+
+        var activity = new Activity(nameof(PasswordResetConsumer));
+
         activity.Start();
-        
+
         using var connection = _rabbitMqService.CreateConnection();
         using var channel = _rabbitMqService.CreateChannel(connection);
 
-        channel.QueueDeclare(queue: "notification.password-reset", durable: true, exclusive: false,
-            autoDelete: false,
-            arguments: null);
+        channel.QueueDeclare("notification.password-reset", true, false,
+            false,
+            null);
 
         var message = _rabbitMqService.ConsumeMessage(channel, "notification.password-reset",
-            message => { _logger.LogInformation($"Inside handler: {message}"); });
+            message => { _emailService.SendPasswordReset(message, "oliveira.urich@gmail.com"); });
 
         _logger.LogInformation("Message received: {Message}", message);
 
-        
+
         activity.Stop();
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await Task.Delay(1000, stoppingToken);
-        }
+        while (!stoppingToken.IsCancellationRequested) await Task.Delay(1000, stoppingToken);
     }
 }

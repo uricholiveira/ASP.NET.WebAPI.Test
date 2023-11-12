@@ -11,22 +11,14 @@ namespace API.Controllers;
 [Route("[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly ILogger<AuthController> _logger;
     private readonly IIdentityService _identityService;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(ILogger<AuthController> logger, IIdentityService identityService)
     {
         _logger = logger;
         _identityService = identityService;
     }
-
-
-    [HttpPost("ForgotPassword")]
-    public Task<IActionResult> ForgotPassword(CancellationToken cancellationToken)
-    {
-        return Task.FromResult<IActionResult>(Ok());
-    }
-
 
     [HttpPost("Login")]
     public async Task<IActionResult> Login(LoginRequest data, CancellationToken cancellationToken)
