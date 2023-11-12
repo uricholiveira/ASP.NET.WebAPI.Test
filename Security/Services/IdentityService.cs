@@ -36,14 +36,27 @@ public class IdentityService : IIdentityService
             Email = data.Email,
             EmailConfirmed = false
         };
-
+        
+        var result = await _userManager.CreateAsync(user, data.Password);
+        
         var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         await _notificationService.PublishEmailConfirmation(user, emailConfirmationToken);
 
-        return await _userManager.CreateAsync(user, data.Password);
+        return result;
     }
 
-    public async Task<bool?> PasswordReset(string userId, CancellationToken cancellationToken)
+    public async Task<IdentityResult?> UpdatePassword(string userId, ResetPassword data,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return null;
+
+        var result = await _userManager.ResetPasswordAsync(user, data.ResetPasswordToken, data.Password);
+        return result;
+    }
+
+    public async Task<bool?> GeneratePasswordResetToken(string userId, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
@@ -55,13 +68,13 @@ public class IdentityService : IIdentityService
         return true;
     }
 
-    public async Task<bool> UserEmailConfirmationToken(string userId, string emailConfirmationToken,
+    public async Task<bool> ConfirmEmail(string userId, string emailConfirmationToken,
         CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
             return false;
-
+        
         var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
         return result.Succeeded;
     }

@@ -13,7 +13,16 @@ public static class AuthenticationExtension
         var jwtConfiguration = configuration.GetSection(nameof(JwtOptions));
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtConfiguration["SecurityKey"]!));
 
+        serviceCollection.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromMinutes(15);
+        });
 
+        serviceCollection.AddDefaultIdentity<IdentityUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<IdentityDatabaseContext>()
+            .AddDefaultTokenProviders();
+        
         serviceCollection.Configure<JwtOptions>(options =>
         {
             options.Issuer = jwtConfiguration[nameof(JwtOptions.Issuer)]!;
@@ -25,6 +34,7 @@ public static class AuthenticationExtension
 
         serviceCollection.Configure<IdentityOptions>(options =>
         {
+            options.SignIn.RequireConfirmedEmail = true;
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequireUppercase = true;

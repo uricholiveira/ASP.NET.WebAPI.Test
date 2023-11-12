@@ -8,5 +8,5 @@ public interface IRabbitMqService
     public IModel CreateChannel(IConnection connection);
     public IBasicProperties CreateBasicProperties(IModel channel);
     public void PublishMessage(IModel channel, string message, string queue, IBasicProperties? basicProperties);
-    public string ConsumeMessage(IModel channel, string queue, Action<string> messageHandler);
+    public string ConsumeMessage(IModel channel, string queue, Action<string, ulong> messageHandler);
 }
