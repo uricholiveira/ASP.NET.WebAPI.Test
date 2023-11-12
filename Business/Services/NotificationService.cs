@@ -1,8 +1,6 @@
 ﻿using System.Web;
 using Business.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -10,8 +8,8 @@ namespace Business.Services;
 
 public class NotificationService : INotificationService
 {
-    private readonly ILogger<RabbitMqService> _logger;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<RabbitMqService> _logger;
     private readonly IRabbitMqService _rabbitMqService;
 
     public NotificationService(ILogger<RabbitMqService> logger, IConfiguration configuration,
@@ -22,51 +20,51 @@ public class NotificationService : INotificationService
         _rabbitMqService = rabbitMqService;
     }
 
-    public Task SendEmailConfirmation(IdentityUser user, string emailConfirmationToken)
+    public Task PublishEmailConfirmation(IdentityUser user, string emailConfirmationToken)
     {
         using var connection = _rabbitMqService.CreateConnection();
         using var channel = _rabbitMqService.CreateChannel(connection);
 
-        channel.QueueDeclare(queue: "notification.email-confirmation", durable: true, exclusive: false, autoDelete: false,
-            arguments: null);
+        channel.QueueDeclare("notification.email-confirmation", true, false, false,
+            null);
 
-        var confirmationLink = new UriBuilder(new Uri("http://localhost/User/Confirmation", UriKind.Absolute))
+        var confirmationUrl = new UriBuilder(new Uri("http://localhost/User/Confirmation", UriKind.Absolute))
             { Port = -1 };
 
-        var query = HttpUtility.ParseQueryString(confirmationLink.Query);
+        var query = HttpUtility.ParseQueryString(confirmationUrl.Query);
         query["userId"] = user.Id;
         query["emailConfirmationToken"] = emailConfirmationToken;
 
-        confirmationLink.Query = query.ToString();
+        confirmationUrl.Query = query.ToString();
 
-        var message = $"Olá, seja bem vindo! Seu link de confirmação: {confirmationLink}";
+        var message = confirmationUrl.ToString();
 
-        _rabbitMqService.PublishMessage(channel, message, "notification.email-confirmation",null);
+        _rabbitMqService.PublishMessage(channel, message, "notification.email-confirmation", null);
 
         _logger.LogInformation("Message sent! {Message}", message);
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordReset(IdentityUser user, string passwordConfirmationToken)
+    public Task PublishResetPassword(IdentityUser user, string resetPasswordToken)
     {
         using var connection = _rabbitMqService.CreateConnection();
         using var channel = _rabbitMqService.CreateChannel(connection);
 
-        channel.QueueDeclare(queue: "notification.password-reset", durable: true, exclusive: false, autoDelete: false,
-            arguments: null);
+        channel.QueueDeclare("notification.password-reset", true, false, false,
+            null);
 
-        var confirmationLink = new UriBuilder(new Uri("http://localhost/User/Password-Reset", UriKind.Absolute))
+        var resetUrl = new UriBuilder(new Uri("http://localhost/User/Password-Reset", UriKind.Absolute))
             { Port = -1 };
 
-        var query = HttpUtility.ParseQueryString(confirmationLink.Query);
+        var query = HttpUtility.ParseQueryString(resetUrl.Query);
         query["userId"] = user.Id;
-        query["passwordResetToken"] = passwordConfirmationToken;
+        query["resetPasswordToken"] = resetPasswordToken;
 
-        confirmationLink.Query = query.ToString();
+        resetUrl.Query = query.ToString();
 
-        var message = $"Olá, seja bem vindo! Seu link para resetar senha: {confirmationLink}";
+        var message = resetUrl.ToString();
 
-        _rabbitMqService.PublishMessage(channel, message, "notification.password-reset",null);
+        _rabbitMqService.PublishMessage(channel, message, "notification.password-reset", null);
 
         _logger.LogInformation("Message sent! {Message}", message);
         return Task.CompletedTask;

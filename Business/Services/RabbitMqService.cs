@@ -10,9 +10,9 @@ namespace Business.Services;
 
 public class RabbitMqService : IRabbitMqService
 {
-    private readonly ILogger<RabbitMqService> _logger;
     private readonly IConfiguration _configuration;
     private readonly IConnectionFactory _connectionFactory;
+    private readonly ILogger<RabbitMqService> _logger;
 
     public RabbitMqService(ILogger<RabbitMqService> logger, IConfiguration configuration,
         IConnectionFactory connectionFactory)
@@ -68,8 +68,8 @@ public class RabbitMqService : IRabbitMqService
             basicProperties ??= channel.CreateBasicProperties();
 
             basicProperties.CorrelationId = Activity.Current!.TraceId.ToString();
-            channel.BasicPublish(exchange: "web-services", routingKey: queue, basicProperties: basicProperties,
-                body: Encoding.UTF8.GetBytes(message));
+            channel.BasicPublish("web-services", queue, basicProperties,
+                Encoding.UTF8.GetBytes(message));
         }
         catch (Exception ex)
         {

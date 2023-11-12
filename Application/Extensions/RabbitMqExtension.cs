@@ -16,7 +16,7 @@ public static class RabbitMqExtension
             HostName = rabbitMqConfiguration?.Host,
             Port = rabbitMqConfiguration!.Port,
             UserName = rabbitMqConfiguration?.Username,
-            Password = rabbitMqConfiguration?.Password,
+            Password = rabbitMqConfiguration?.Password
         };
 
         serviceCollection.AddSingleton<IConnectionFactory>(connectionFactory);
