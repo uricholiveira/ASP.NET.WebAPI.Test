@@ -78,7 +78,7 @@ public class RabbitMqService : IRabbitMqService
         }
     }
 
-    public string ConsumeMessage(IModel channel, string queue, Action<string> messageHandler)
+    public string ConsumeMessage(IModel channel, string queue, Action<string, ulong> messageHandler)
     {
         var consumer = new EventingBasicConsumer(channel);
 
@@ -86,13 +86,14 @@ public class RabbitMqService : IRabbitMqService
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
+            var deliveryTag = ea.DeliveryTag;
             var parentId = ea.BasicProperties.CorrelationId;
 
             Activity.Current?.SetParentId(parentId);
 
-            messageHandler(message);
+            messageHandler(message, deliveryTag);
         };
 
-        return channel.BasicConsume(queue, true, consumer);
+        return channel.BasicConsume(queue, false, consumer);
     }
 }

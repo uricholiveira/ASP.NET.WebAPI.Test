@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Data.Models.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Security.Interfaces;
@@ -25,23 +26,25 @@ public class UserController : ControllerBase
         var result = await _identityService.CreateUser(data, cancellationToken);
 
         if (result.Succeeded)
-            return Created("", "");
+            return Created("", result);
 
         return BadRequest(result.Errors);
     }
 
-    [HttpGet("Confirmation")]
-    public async Task<IActionResult> CreateUser([FromQuery] string userId, [FromQuery] string emailConfirmationToken,
+    [HttpGet("Email/Confirmation")]
+    [AllowAnonymous]
+    public async Task<IActionResult> EmailConfirmation([FromQuery] string userId,
+        [FromQuery] string emailConfirmationToken,
         CancellationToken cancellationToken)
     {
         var result =
-            await _identityService.UserEmailConfirmationToken(userId, emailConfirmationToken, cancellationToken);
+            await _identityService.ConfirmEmail(userId, emailConfirmationToken, cancellationToken);
 
-        return result ? Ok("Token confirmado") : BadRequest("Token inválido");
+        return result ? Ok("Email confirmado") : BadRequest("Confirmação inválida");
     }
 
-    [HttpGet("Password-Reset")]
-    public async Task<IActionResult> PasswordReset(CancellationToken cancellationToken)
+    [HttpGet("Password/Reset")]
+    public async Task<IActionResult> ResetPassword(CancellationToken cancellationToken)
     {
         var user = User.Identity as ClaimsIdentity;
         var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -49,8 +52,26 @@ public class UserController : ControllerBase
         if (userId is null)
             return BadRequest();
 
-        var result = await _identityService.PasswordReset(userId, cancellationToken);
+        var result = await _identityService.GeneratePasswordResetToken(userId, cancellationToken);
 
-        return result is true ? Ok("Token enviado") : BadRequest("Token não enviado");
+        return result is true
+            ? Ok("Email de redefinição enviado")
+            : BadRequest("Erro ao enviar o email de redefinição de senha");
+    }
+
+    [HttpPost("Password/Reset")]
+    public async Task<IActionResult> ChangePassword([FromBody] ResetPassword data, CancellationToken cancellationToken)
+    {
+        var user = User.Identity as ClaimsIdentity;
+        var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId is null)
+            return BadRequest();
+
+        var result = await _identityService.UpdatePassword(userId, data, cancellationToken);
+
+        return result!.Succeeded
+            ? Ok()
+            : BadRequest("Erro ao redefinir senha");
     }
 }

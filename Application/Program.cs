@@ -31,11 +31,6 @@ builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSwaggerExtension();
 builder.Services.AddControllers();
 
-builder.Services.AddDefaultIdentity<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<IdentityDatabaseContext>()
-    .AddDefaultTokenProviders();
-
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

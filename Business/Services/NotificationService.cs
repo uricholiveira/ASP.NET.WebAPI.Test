@@ -28,8 +28,8 @@ public class NotificationService : INotificationService
         channel.QueueDeclare("notification.email-confirmation", true, false, false,
             null);
 
-        var confirmationUrl = new UriBuilder(new Uri("http://localhost/User/Confirmation", UriKind.Absolute))
-            { Port = -1 };
+        var confirmationUrl = new UriBuilder(new Uri("http://localhost:5112/User/Email/Confirmation", UriKind.Absolute))
+            { Port = 5112 };
 
         var query = HttpUtility.ParseQueryString(confirmationUrl.Query);
         query["userId"] = user.Id;
@@ -53,8 +53,8 @@ public class NotificationService : INotificationService
         channel.QueueDeclare("notification.password-reset", true, false, false,
             null);
 
-        var resetUrl = new UriBuilder(new Uri("http://localhost/User/Password-Reset", UriKind.Absolute))
-            { Port = -1 };
+        var resetUrl = new UriBuilder(new Uri("http://localhost:5112/User/Password/Reset", UriKind.Absolute))
+            { Port = 5112 };
 
         var query = HttpUtility.ParseQueryString(resetUrl.Query);
         query["userId"] = user.Id;

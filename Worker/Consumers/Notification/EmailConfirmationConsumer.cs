@@ -36,7 +36,20 @@ public class EmailConfirmationConsumer : BackgroundService
             null);
 
         var message = _rabbitMqService.ConsumeMessage(channel, "notification.email-confirmation",
-            message => { _emailService.SendEmailConfirmation(message, "oliveira.urich@gmail.com"); });
+            (message, deliveryTag) =>
+            {
+                try
+                {
+                    _emailService.SendEmailConfirmation(message, "oliveira.urich@gmail.com");
+                    channel.BasicAck(deliveryTag, false);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    channel!.BasicNack(deliveryTag, false, true);
+                }
+            });
+
 
         _logger.LogInformation("Message received: {Message}", message);
 

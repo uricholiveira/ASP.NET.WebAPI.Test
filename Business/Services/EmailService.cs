@@ -33,7 +33,7 @@ public class EmailService : IEmailService
             var message = new MailMessage
             {
                 From = new MailAddress(_emailSettings.SmtpFrom),
-                Subject = "Assunto do E-mail",
+                Subject = "Confirmação de E-mail",
                 Body = htmlFile,
                 IsBodyHtml = true
             };
@@ -63,7 +63,7 @@ public class EmailService : IEmailService
             var message = new MailMessage
             {
                 From = new MailAddress(_emailSettings.SmtpFrom),
-                Subject = "Assunto do E-mail",
+                Subject = "Redefinição de senha",
                 Body = htmlFile,
                 IsBodyHtml = true
             };

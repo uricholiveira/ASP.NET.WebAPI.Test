@@ -36,7 +36,19 @@ public class PasswordResetConsumer : BackgroundService
             null);
 
         var message = _rabbitMqService.ConsumeMessage(channel, "notification.password-reset",
-            message => { _emailService.SendPasswordReset(message, "oliveira.urich@gmail.com"); });
+            (message, deliveryTag) =>
+            {
+                try
+                {
+                    _emailService.SendPasswordReset(message, "oliveira.urich@gmail.com");
+                    channel.BasicAck(deliveryTag, false);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    channel.BasicNack(deliveryTag, false, true);
+                }
+            });
 
         _logger.LogInformation("Message received: {Message}", message);
 
