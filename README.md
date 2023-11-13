@@ -27,22 +27,22 @@ ASP.NET Core is a versatile, open-source framework for building web applications
 - [x] User registration and authentication.
 - [x] Role-based access control.
 - [ ] User profile management.
-- [ ] Password reset 
+- [x] Password reset 
 - [x] Email confirmation.
 - [x] Token-based authentication.
 
 ### RabbitMQ Integration
 
 - [x] Publish messages using RabbitMQ.
-- [ ] Consume messages using RabbitMQ.
-- [ ] Queue and worker patterns for background processing.
+- [x] Consume messages using RabbitMQ.
+- [x] Queue and worker patterns for background processing.
 - [ ] Reliable and asynchronous communication between microservices.
 
 ### Email Sending
 
-- [ ] Send transactional emails.
-- [ ] Email templates with customizable content.
-- [ ] Secure and configurable email settings.
+- [x] Send transactional emails.
+- [x] Email templates with customizable content.
+- [x] Secure and configurable email settings.
 
 ## Getting Started
 
