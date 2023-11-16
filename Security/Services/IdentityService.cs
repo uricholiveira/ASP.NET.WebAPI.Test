@@ -56,7 +56,7 @@ public class IdentityService : IIdentityService
         return result;
     }
 
-    public async Task<bool?> GeneratePasswordResetToken(string userId, CancellationToken cancellationToken)
+    public async Task<bool?> ResetPassword(string userId, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
@@ -68,7 +68,7 @@ public class IdentityService : IIdentityService
         return true;
     }
 
-    public async Task<bool> ConfirmEmail(string userId, string emailConfirmationToken,
+    public async Task<bool> VerifyEmail(string userId, string emailConfirmationToken,
         CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);

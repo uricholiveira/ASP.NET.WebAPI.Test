@@ -2,6 +2,6 @@
 
 public interface IEmailService
 {
-    public Task SendEmailConfirmation(string url, string destination);
-    public Task SendPasswordReset(string url, string destination);
+    public Task SendEmailConfirmation(string name, string url, string destination);
+    public Task SendPasswordReset(string name, string url, string destination);
 }

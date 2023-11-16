@@ -8,7 +8,7 @@ public static class Swagger
     {
         serviceCollection.AddEndpointsApiExplorer();
         serviceCollection.AddSwaggerGen(options =>
-        {
+        {  
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "Application",

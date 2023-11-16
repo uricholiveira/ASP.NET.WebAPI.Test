@@ -8,7 +8,7 @@ using Security.Interfaces;
 namespace API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IIdentityService _identityService;
@@ -20,7 +20,18 @@ public class AuthController : ControllerBase
         _identityService = identityService;
     }
 
-    [HttpPost("Login")]
+    [HttpPost("register")]
+    public async Task<IActionResult> CreateUser(CreateUserRequest data, CancellationToken cancellationToken)
+    {
+        var result = await _identityService.CreateUser(data, cancellationToken);
+
+        if (result.Succeeded)
+            return Created("", result);
+
+        return BadRequest(result.Errors);
+    }
+
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest data, CancellationToken cancellationToken)
     {
         var result = await _identityService.Login(data, cancellationToken);
@@ -29,7 +40,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("Login/Refresh")]
+    [HttpPost("login/refresh")]
     public async Task<IActionResult> LoginRefresh(CancellationToken cancellationToken)
     {
         var user = User.Identity as ClaimsIdentity;

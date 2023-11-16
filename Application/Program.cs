@@ -30,6 +30,11 @@ builder.Services.AddCustomAuthentication(builder.Configuration);
 builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSwaggerExtension();
 builder.Services.AddControllers();
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+});
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
@@ -48,7 +53,5 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllers();
 
 app.Run();
