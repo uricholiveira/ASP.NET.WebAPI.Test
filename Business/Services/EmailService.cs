@@ -16,10 +16,11 @@ public class EmailService : IEmailService
         _emailSettings = emailSettings;
     }
 
-    public async Task SendEmailConfirmation(string url, string destination)
+    public async Task SendEmailConfirmation(string name, string url, string destination)
     {
         var htmlFile = await ReadHtmlFile("../Business/Templates/Html/EmailConfirmation.html");
 
+        htmlFile = htmlFile.Replace("{{Name}}", name);
         htmlFile = htmlFile.Replace("{{Url}}", url);
 
         // Configurar o cliente SMTP
@@ -46,10 +47,11 @@ public class EmailService : IEmailService
         }
     }
 
-    public async Task SendPasswordReset(string url, string destination)
+    public async Task SendPasswordReset(string name, string url, string destination)
     {
         var htmlFile = await ReadHtmlFile("../Business/Templates/Html/PasswordReset.html");
 
+        htmlFile = htmlFile.Replace("{{Name}}", name);
         htmlFile = htmlFile.Replace("{{Url}}", url);
 
         // Configurar o cliente SMTP

@@ -40,7 +40,8 @@ public class PasswordResetConsumer : BackgroundService
             {
                 try
                 {
-                    _emailService.SendPasswordReset(message, "oliveira.urich@gmail.com");
+                    // TODO: Get user here
+                    _emailService.SendPasswordReset("Urich", message, "oliveira.urich@gmail.com");
                     channel.BasicAck(deliveryTag, false);
                 }
                 catch (Exception e)

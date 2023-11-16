@@ -40,7 +40,8 @@ public class EmailConfirmationConsumer : BackgroundService
             {
                 try
                 {
-                    _emailService.SendEmailConfirmation(message, "oliveira.urich@gmail.com");
+                    // TODO: Get user here
+                    _emailService.SendEmailConfirmation("Urich", message, "oliveira.urich@gmail.com");
                     channel.BasicAck(deliveryTag, false);
                 }
                 catch (Exception e)

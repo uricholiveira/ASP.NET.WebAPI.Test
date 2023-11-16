@@ -9,9 +9,9 @@ public interface IIdentityService
 {
     public Task<IdentityResult> CreateUser(CreateUserRequest data, CancellationToken cancellationToken);
     public Task<IdentityResult?> UpdatePassword(string userId, ResetPassword data, CancellationToken cancellationToken);
-    public Task<bool?> GeneratePasswordResetToken(string userId, CancellationToken cancellationToken);
+    public Task<bool?> ResetPassword(string userId, CancellationToken cancellationToken);
 
-    public Task<bool> ConfirmEmail(string userId, string emailConfirmationToken,
+    public Task<bool> VerifyEmail(string userId, string emailConfirmationToken,
         CancellationToken cancellationToken);
 
     public Task<JwtToken?> GenerateToken(IdentityUser user);
