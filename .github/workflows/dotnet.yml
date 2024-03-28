@@ -38,5 +38,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish and push the container image
         run: |
-          dotnet publish Application/Application.csproj --os linux --arch x64 -c Release /p:PublishProfile=github
+          dotnet publish ./Application/Application.csproj --os linux --arch x64 -c Release /p:PublishProfile=github
   
