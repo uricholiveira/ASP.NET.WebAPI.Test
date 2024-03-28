@@ -36,7 +36,6 @@ jobs:
   publish:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
@@ -48,7 +47,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.G_TOKEN }}
       - name: Retrieves Docker Metadata
         id: meta
         uses: docker/metadata-action@v5.5.1
