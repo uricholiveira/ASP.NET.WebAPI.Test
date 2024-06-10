@@ -30,6 +30,7 @@ public class LoggingMiddleware
             await _next(httpContext);
 
             // Log the response details
+            
             await LogResponse(httpContext.Response);
 
             responseBody.Seek(0, SeekOrigin.Begin);
